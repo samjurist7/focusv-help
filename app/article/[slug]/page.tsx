@@ -2,12 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Layout } from "@/components/Layout";
 import { ArticleRenderer } from "@/components/article/ArticleRenderer";
-import { articles, getArticle, getCategory, type Block, type HeadingBlock } from "@/lib/articles";
+import { publishedArticles, getArticle, getCategory, type Block, type HeadingBlock } from "@/lib/articles";
 import { ChevronRight, Clock, CalendarDays, ArrowRight, MessageCircle } from "lucide-react";
 import { MobileTOC, FeedbackSection } from "./ArticleClient";
 
 export function generateStaticParams() {
-  return articles.map((a) => ({ slug: a.slug }));
+  return publishedArticles.map((a) => ({ slug: a.slug }));
 }
 
 export async function generateMetadata({
@@ -40,7 +40,7 @@ export default async function ArticlePage({
   const headings = (article.blocks as Block[]).filter(
     (b): b is HeadingBlock => b.type === "heading" && b.level === 2
   );
-  const related = articles
+  const related = publishedArticles
     .filter((a) => a.category === article.category && a.slug !== article.slug)
     .slice(0, 3);
   const updated = new Date(article.updated).toLocaleDateString(undefined, {
