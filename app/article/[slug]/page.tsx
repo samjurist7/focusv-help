@@ -2,9 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Layout } from "@/components/Layout";
 import { ArticleRenderer } from "@/components/article/ArticleRenderer";
-import { articles, getArticle, getCategory, type Block, type HeadingBlock } from "@/lib/articles";
+import { articles, getArticle, getCategory, type Block, type HeadingBlock, type StepsBlock } from "@/lib/articles";
 import { ChevronRight, Clock, CalendarDays, ArrowRight, MessageCircle } from "lucide-react";
 import { MobileTOC, FeedbackSection } from "./ArticleClient";
+
+const BASE_URL = "https://help.focusv.com";
 
 export function generateStaticParams() {
   return articles.map((a) => ({ slug: a.slug }));
@@ -17,14 +19,100 @@ export async function generateMetadata({
 }) {
   const { slug } = await params;
   const article = getArticle(slug);
+  if (!article) return { title: "Article — Focus V Help" };
+
+  const canonicalUrl = `${BASE_URL}/article/${article.slug}`;
+  const title = `${article.title} — Focus V Help`;
+
   return {
-    title: article ? `${article.title} — Focus V Help` : "Article — Focus V Help",
-    description: article?.summary ?? "",
+    title,
+    description: article.summary,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
-      title: article?.title ?? "Focus V Help",
-      description: article?.summary ?? "",
+      title: article.title,
+      description: article.summary,
+      url: canonicalUrl,
+      siteName: "Focus V Help Center",
+      type: "article",
+      modifiedTime: article.updated,
+    },
+    twitter: {
+      card: "summary",
+      title: article.title,
+      description: article.summary,
+      site: "@focusvofficial",
     },
   };
+}
+
+/** Build JSON-LD for the article based on its content type */
+function buildJsonLd(
+  article: NonNullable<ReturnType<typeof getArticle>>,
+  category: ReturnType<typeof getCategory>,
+  canonicalUrl: string
+) {
+  const dateModified = new Date(article.updated).toISOString();
+  const breadcrumb = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: BASE_URL },
+      ...(category
+        ? [
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: category.title,
+              item: `${BASE_URL}/category/${category.slug}`,
+            },
+          ]
+        : []),
+      { "@type": "ListItem", position: category ? 3 : 2, name: article.title, item: canonicalUrl },
+    ],
+  };
+
+  const stepsBlocks = article.blocks.filter(
+    (b): b is StepsBlock => b.type === "steps"
+  );
+
+  // HowTo schema for articles with steps
+  if (stepsBlocks.length > 0) {
+    const allSteps = stepsBlocks.flatMap((b) => b.items);
+    const howTo = {
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      name: article.title,
+      description: article.summary,
+      dateModified,
+      url: canonicalUrl,
+      step: allSteps.map((s, i) => ({
+        "@type": "HowToStep",
+        position: i + 1,
+        name: s.title,
+        text: s.body,
+      })),
+    };
+    return [breadcrumb, howTo];
+  }
+
+  // Default Article schema
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: article.title,
+    description: article.summary,
+    dateModified,
+    url: canonicalUrl,
+    publisher: {
+      "@type": "Organization",
+      name: "Focus V",
+      url: "https://focusv.com",
+    },
+  };
+
+  return [breadcrumb, articleSchema];
 }
 
 export default async function ArticlePage({
@@ -36,6 +124,9 @@ export default async function ArticlePage({
   const article = getArticle(slug);
   if (!article) notFound();
   const category = getCategory(article.category);
+
+  const canonicalUrl = `${BASE_URL}/article/${article.slug}`;
+  const jsonLd = buildJsonLd(article, category, canonicalUrl);
 
   const headings = (article.blocks as Block[]).filter(
     (b): b is HeadingBlock => b.type === "heading" && b.level === 2
@@ -51,6 +142,15 @@ export default async function ArticlePage({
 
   return (
     <Layout>
+      {/* JSON-LD structured data */}
+      {jsonLd.map((schema, i) => (
+        <script
+          key={i}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        />
+      ))}
+
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Breadcrumb */}
         <nav className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
