@@ -8,9 +8,20 @@ import { MobileTOC, FeedbackSection } from "./ArticleClient";
 
 const BASE_URL = "https://help.focusv.com";
 
+// Generate pages for ALL articles including unpublished so old URLs don't 404
 export function generateStaticParams() {
   return articles.map((a) => ({ slug: a.slug }));
 }
+
+// Maps unpublished slugs → the consolidated article they were merged into
+const REDIRECT_MAP: Record<string, { slug: string; anchor?: string }> = {
+  "error-code-flashing-red-white":  { slug: "carta-sport-error-codes", anchor: "red-white-flashing-overheat" },
+  "error-code-flashing-red-purple": { slug: "carta-sport-error-codes", anchor: "red-purple-flashing-open-circuit" },
+  "error-code-flashing-red-yellow": { slug: "carta-sport-error-codes", anchor: "red-yellow-flashing-short-circuit" },
+  "red-white-flashing-lights":      { slug: "aeris-error-codes", anchor: "red-white-flashing-overheat" },
+  "red-yellow-flashing-lights":     { slug: "aeris-error-codes", anchor: "red-yellow-flashing-short-circuit" },
+  "red-purple-flashing-lights":     { slug: "aeris-error-codes", anchor: "red-purple-flashing-open-circuit" },
+};
 
 export async function generateMetadata({
   params,
@@ -123,6 +134,40 @@ export default async function ArticlePage({
   const { slug } = await params;
   const article = getArticle(slug);
   if (!article) notFound();
+
+  // If unpublished and has a redirect destination, show redirect page
+  const redirect = REDIRECT_MAP[slug];
+  if (article.published === false && redirect) {
+    const dest = `/article/${redirect.slug}${redirect.anchor ? `#${redirect.anchor}` : ""}`;
+    return (
+      <Layout>
+        <div className="mx-auto max-w-2xl px-4 py-24 text-center">
+          <div className="mb-6 inline-flex h-12 w-12 items-center justify-center rounded-full bg-accent/10 text-accent">
+            <ArrowRight className="h-6 w-6" />
+          </div>
+          <h1 className="text-2xl font-semibold">This article has moved</h1>
+          <p className="mt-3 text-muted-foreground">
+            This content has been consolidated into our comprehensive error code reference.
+          </p>
+          <a
+            href={dest}
+            className="mt-8 inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 font-semibold text-accent-foreground hover:opacity-90"
+          >
+            Go to updated article <ArrowRight className="h-4 w-4" />
+          </a>
+          <p className="mt-4 text-xs text-muted-foreground">
+            You will be redirected automatically.
+          </p>
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `setTimeout(function(){ window.location.href = "${dest}"; }, 2000);`,
+            }}
+          />
+        </div>
+      </Layout>
+    );
+  }
+
   const category = getCategory(article.category);
 
   const canonicalUrl = `${BASE_URL}/article/${article.slug}`;
