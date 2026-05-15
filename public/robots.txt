@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+Disallow: /search
+Disallow: /api/
+
+Sitemap: https://help.focusv.com/sitemap.xml
