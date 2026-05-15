@@ -1,5 +1,5 @@
 import { MetadataRoute } from "next";
-import { articles, categories } from "@/lib/articles";
+import { publishedArticles, categories } from "@/lib/articles";
 
 const BASE_URL = "https://help.focusv.com";
 
@@ -31,7 +31,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   }));
 
   // Article pages
-  const articlePages: MetadataRoute.Sitemap = articles.map((article) => ({
+  const articlePages: MetadataRoute.Sitemap = publishedArticles.map((article) => ({
     url: `${BASE_URL}/article/${article.slug}`,
     lastModified: new Date(article.updated),
     changeFrequency: "monthly" as const,

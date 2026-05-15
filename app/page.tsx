@@ -56,7 +56,7 @@ export default function HomePage() {
           </div>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
             <span>Popular:</span>
-            {["Carta 3 setup", "Won't turn on", "Cleaning", "Warranty"].map(
+            {["Error codes", "Won't turn on", "Cleaning", "Warranty"].map(
               (t) => (
                 <Link
                   key={t}
