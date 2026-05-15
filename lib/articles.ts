@@ -38,7 +38,17 @@ export const getArticle = (slug: string) => articles.find((a) => a.slug === slug
 export const getCategory = (slug: string) => categories.find((c) => c.slug === slug);
 export const articlesInCategory = (slug: string) => articles.filter((a) => a.category === slug);
 
-export const popularArticles = () => articles.slice(0, 6);
+// Popular articles — curated to span multiple products for homepage diversity
+const POPULAR_SLUGS = [
+  'how-to-clean-your-aeris',                              // Aeris: cleaning
+  'carta-2-504-505-errors-connectivity-issues-troubleshooting', // Carta 2: most common troubleshooting
+  'how-to-use-your-carta-classic',                        // Carta Classic: how to use
+  'saber-troubleshooting-understanding-error-codes',      // Saber: error codes
+  'bluetooth-connection-to-the-v-browser-troubleshooting', // App/pairing
+  'limited-warranty',                                     // Policy: warranty
+];
+export const popularArticles = () =>
+  POPULAR_SLUGS.map(slug => articles.find(a => a.slug === slug)).filter(Boolean) as Article[];
 
 export function searchArticles(q: string) {
   const query = q.trim().toLowerCase();
