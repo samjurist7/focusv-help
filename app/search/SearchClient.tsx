@@ -21,7 +21,7 @@ function highlight(snippet: string, q: string) {
   return (
     <>
       {snippet.slice(0, i)}
-      <mark className="rounded bg-accent/25 px-0.5 text-foreground">
+      <mark className="bg-transparent font-semibold text-accent underline decoration-accent/50">
         {snippet.slice(i, i + q.length)}
       </mark>
       {snippet.slice(i + q.length)}
