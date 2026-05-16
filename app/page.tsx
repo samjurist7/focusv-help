@@ -61,7 +61,7 @@ export default function HomePage() {
                 <Link
                   key={t}
                   href={`/search?q=${encodeURIComponent(t)}`}
-                  className="rounded-full border border-border bg-card/40 px-2.5 py-1 transition-colors hover:border-accent/40 hover:text-foreground"
+                  className="rounded-full border border-accent/40 bg-accent/5 px-2.5 py-1 text-foreground/80 transition-colors hover:border-accent hover:bg-accent/10 hover:text-foreground"
                 >
                   {t}
                 </Link>
