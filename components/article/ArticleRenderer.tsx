@@ -2,7 +2,8 @@ import type { Block } from "@/lib/articles";
 import { Callout } from "./Callout";
 import { StepList } from "./StepList";
 import { VideoEmbed } from "./VideoEmbed";
-import { ImageIcon } from "lucide-react";
+import { ImageIcon, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 export function ArticleRenderer({ blocks }: { blocks: Block[] }) {
   return (
@@ -93,6 +94,21 @@ export function ArticleRenderer({ blocks }: { blocks: Block[] }) {
             );
           case "video":
             return <VideoEmbed key={i} title={b.title} url={b.url} />;
+          case "related":
+            return (
+              <div key={i} className="not-prose mt-2 grid gap-2">
+                {b.items.map((item, j) => (
+                  <Link
+                    key={j}
+                    href={item.href}
+                    className="group flex items-center justify-between rounded-xl border border-border bg-card/40 px-4 py-3 text-sm font-medium transition-colors hover:border-accent/40 hover:bg-card hover:text-accent"
+                  >
+                    <span>{item.title}</span>
+                    <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-accent" />
+                  </Link>
+                ))}
+              </div>
+            );
         }
       })}
     </div>
