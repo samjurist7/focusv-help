@@ -259,36 +259,37 @@ function Header() {
 function Footer() {
   return (
     <footer className="mt-24 border-t border-border bg-card/30">
-      <div className="mx-auto flex max-w-7xl flex-col items-start gap-6 px-4 py-10 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
-        <div className="flex items-center gap-3">
-          <Logo />
+      <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-10 sm:px-6 lg:px-8">
+        <div className="flex flex-col items-start gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-3">
+            <Logo />
+          </div>
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
+            <a
+              href="https://focusv.com"
+              className="inline-flex items-center gap-1 transition-colors hover:text-foreground"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Shop Focus V <ExternalLink className="h-3 w-3" />
+            </a>
+            <a
+              href="https://portal.focusv.com"
+              className="inline-flex items-center gap-1 transition-colors hover:text-foreground"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Warranty Portal <ExternalLink className="h-3 w-3" />
+            </a>
+          </div>
         </div>
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
-          <a
-            href="https://focusv.com"
-            className="inline-flex items-center gap-1 transition-colors hover:text-foreground"
-            target="_blank"
-            rel="noreferrer"
-          >
-            focusv.com <ExternalLink className="h-3 w-3" />
-          </a>
-          <a
-            href="https://portal.focusv.com"
-            className="inline-flex items-center gap-1 transition-colors hover:text-foreground"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Warranty Portal <ExternalLink className="h-3 w-3" />
-          </a>
-          <a
-            href="mailto:support@focusv.com"
-            className="transition-colors hover:text-foreground"
-          >
-            support@focusv.com
-          </a>
-        </div>
-        <div className="text-xs text-muted-foreground">
-          © {new Date().getFullYear()} Focus V. All rights reserved.
+        <div className="flex flex-col gap-1 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="text-xs text-muted-foreground">
+            © {new Date().getFullYear()} Focus V. All rights reserved.
+          </div>
+          <div className="text-xs font-medium text-muted-foreground tracking-wide">
+            Dab Smarter.
+          </div>
         </div>
       </div>
     </footer>
