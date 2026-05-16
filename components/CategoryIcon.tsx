@@ -25,6 +25,7 @@ const monograms: Record<string, string> = {
   "saber":                 "SAB",
   "carta-classic":         "CC",
   "carta-original":        "OG",
+  "carta-og-classic":      "OG",
 };
 
 export function CategoryIcon({
