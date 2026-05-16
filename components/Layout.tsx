@@ -82,7 +82,7 @@ function DevicesMenu({ pathname }: { pathname: string }) {
                 className="group flex items-start gap-3 rounded-lg p-2.5 transition-colors hover:bg-muted"
               >
                 <span className="grid h-9 w-9 shrink-0 place-items-center rounded-md border border-border bg-card text-accent">
-                  <CategoryIcon name={c.icon} className="h-4 w-4" />
+                  <CategoryIcon name={c.icon} slug={c.slug} className="h-4 w-4" />
                 </span>
                 <span className="min-w-0">
                   <span className="block truncate text-sm font-medium text-foreground">
@@ -233,7 +233,7 @@ function Header() {
                   href={`/category/${c.slug}`}
                   className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
                 >
-                  <CategoryIcon name={c.icon} className="h-4 w-4 text-accent" />
+                  <CategoryIcon name={c.icon} slug={c.slug} className="h-4 w-4 text-accent" />
                   <span className="truncate">{c.title}</span>
                 </Link>
               ))}

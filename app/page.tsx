@@ -95,7 +95,7 @@ export default function HomePage() {
               >
                 <div className="relative flex h-32 w-full items-center justify-center border-b border-border bg-gradient-to-b from-muted/20 to-card">
                   <span className="grid h-14 w-14 place-items-center rounded-2xl bg-accent/10 text-accent ring-1 ring-accent/20">
-                    <CategoryIcon name={c.icon} className="h-6 w-6" />
+                    <CategoryIcon name={c.icon} slug={c.slug} className="h-6 w-6" />
                   </span>
                 </div>
                 <div className="flex flex-1 flex-col p-5">
