@@ -48,7 +48,7 @@ export default function HomePage() {
             How can we help?
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-pretty text-base text-muted-foreground sm:text-lg">
-            Search guides for Carta, Aeris, Saber, and more. Get answers in
+            Search guides for CARTA, AERIS, SABER, and more. Get answers in
             seconds.
           </p>
           <div className="mx-auto mt-8 max-w-2xl">
