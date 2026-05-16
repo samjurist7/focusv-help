@@ -215,6 +215,14 @@ function Header() {
             >
               Contact Support
             </Link>
+            <a
+              href="https://focusv.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-muted"
+            >
+              Shop Focus V
+            </a>
             <div className="mt-2 px-3 pb-1 pt-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Devices
             </div>
