@@ -35,6 +35,12 @@ const REDIRECT_MAP: Record<string, { slug: string; anchor?: string }> = {
   "how-to-use-with-the-app":               { slug: "carta-sport-connect-to-app" },
   "how-to-clean":                          { slug: "carta-sport-how-to-clean" },
   "how-to-remove-install-the-connect":     { slug: "carta-sport-install-connect" },
+  // Intelli-Core Standard slug renames
+  "clean-and-connect-intelli-core-atomizer":               { slug: "intellicore-how-to-install" },
+  "calibrating-the-intelli-core-for-oil-atomizer":         { slug: "intellicore-oil-calibration" },
+  "calibrating-your-intelli-core-for-oil-atomizer":        { slug: "intellicore-oil-calibration" },
+  "using-the-intelli-core-for-herb-atomizer":              { slug: "intellicore-herb-how-to-use" },
+  "intelli-core-and-everlast-for-oil-atomizer-care-guide": { slug: "intellicore-care-guide" },
   // CARTA 2 slug renames
   "how-to-use-carta-2":                                                        { slug: "carta-2-how-to-use" },
   "how-to-clean-your-carta-2-and-intelli-core-for-oil":                        { slug: "carta-2-how-to-clean" },
