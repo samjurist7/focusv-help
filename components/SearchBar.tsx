@@ -38,7 +38,7 @@ export function SearchBar({
   return (
     <form onSubmit={handleSubmit} className="relative w-full">
       {size === "lg" ? (
-        <span className={`pointer-events-none absolute top-1/2 -translate-y-1/2 ${iconPos[size]} flex items-center justify-center`}>
+        <span className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 flex items-center justify-center">
           <span className="relative flex h-3 w-3">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-60" />
             <span className="relative inline-flex h-3 w-3 rounded-full bg-accent" />
