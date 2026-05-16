@@ -35,6 +35,15 @@ const REDIRECT_MAP: Record<string, { slug: string; anchor?: string }> = {
   "how-to-use-with-the-app":               { slug: "carta-sport-connect-to-app" },
   "how-to-clean":                          { slug: "carta-sport-how-to-clean" },
   "how-to-remove-install-the-connect":     { slug: "carta-sport-install-connect" },
+  // CARTA 2 slug renames
+  "how-to-use-carta-2":                                                        { slug: "carta-2-how-to-use" },
+  "how-to-clean-your-carta-2-and-intelli-core-for-oil":                        { slug: "carta-2-how-to-clean" },
+  "best-charging-practices-for-your-carta-2":                                  { slug: "carta-2-charging-battery" },
+  "carta-2-user-tips-care-guide":                                              { slug: "carta-2-tips-care-guide" },
+  "avoiding-excess-reclaim-carta-2":                                           { slug: "carta-2-tips-care-guide" },
+  "carta-2-over-under-heating-troubleshooting":                                { slug: "carta-2-overunder-heating" },
+  "carta-2-504-505-errors-connectivity-issues-troubleshooting":                { slug: "carta-2-504-505-errors" },
+  "carta-2-reading-incorrect-atomizer-stuck-in-dry-herb-mode-troubleshooting": { slug: "carta-2-incorrect-atomizer" },
 };
 
 export async function generateMetadata({
