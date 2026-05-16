@@ -46,7 +46,7 @@ export function SearchBar({
         onChange={(e) => setQ(e.target.value)}
         placeholder={placeholder}
         autoFocus={autoFocus}
-        className={`w-full border border-border bg-card/60 backdrop-blur transition-all placeholder:text-muted-foreground/70 focus:border-accent/60 focus:bg-card focus:outline-none focus:ring-4 focus:ring-accent/15 ${sizes[size]}`}
+        className={`w-full border border-border bg-background dark:bg-black backdrop-blur transition-all placeholder:text-muted-foreground/70 focus:border-accent focus:bg-background dark:focus:bg-black focus:outline-none focus:ring-2 focus:ring-accent/40 ${sizes[size]}`}
       />
       {size === "lg" && (
         <kbd className="pointer-events-none absolute right-5 top-1/2 hidden -translate-y-1/2 items-center gap-1 rounded-md border border-border bg-muted px-2 py-1 text-xs text-muted-foreground sm:flex">
