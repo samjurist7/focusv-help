@@ -35,6 +35,12 @@ const REDIRECT_MAP: Record<string, { slug: string; anchor?: string }> = {
   "how-to-use-with-the-app":               { slug: "carta-sport-connect-to-app" },
   "how-to-clean":                          { slug: "carta-sport-how-to-clean" },
   "how-to-remove-install-the-connect":     { slug: "carta-sport-install-connect" },
+  // SABER slug renames
+  "saber-manual":                                              { slug: "saber-user-manual" },
+  "how-to-use-your-saber":                                     { slug: "saber-how-to-use" },
+  "using-your-saber-with-different-concentrate-consistencies": { slug: "saber-concentrate-guide" },
+  "saber-troubleshooting-understanding-error-codes":           { slug: "saber-error-codes" },
+  "saber-quick-start-video":                                   { slug: "saber-how-to-use" },
   // Intelli-Core Standard slug renames
   "clean-and-connect-intelli-core-atomizer":               { slug: "intellicore-how-to-install" },
   "calibrating-the-intelli-core-for-oil-atomizer":         { slug: "intellicore-oil-calibration" },
