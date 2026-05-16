@@ -278,7 +278,7 @@ function Footer() {
             target="_blank"
             rel="noreferrer"
           >
-            Support portal <ExternalLink className="h-3 w-3" />
+            Warranty Portal <ExternalLink className="h-3 w-3" />
           </a>
           <a
             href="mailto:support@focusv.com"
