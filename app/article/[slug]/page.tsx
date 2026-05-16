@@ -176,9 +176,12 @@ export default async function ArticlePage({
   const headings = (article.blocks as Block[]).filter(
     (b): b is HeadingBlock => b.type === "heading" && b.level === 2
   );
-  const related = articles
-    .filter((a) => a.category === article.category && a.slug !== article.slug)
-    .slice(0, 3);
+  const hasRelatedBlock = article.blocks.some((b) => b.type === "related");
+  const related = hasRelatedBlock
+    ? []
+    : articles
+        .filter((a) => a.category === article.category && a.slug !== article.slug)
+        .slice(0, 3);
   const updated = new Date(article.updated).toLocaleDateString(undefined, {
     month: "short",
     day: "numeric",
