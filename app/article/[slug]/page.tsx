@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Layout } from "@/components/Layout";
 import { ArticleRenderer } from "@/components/article/ArticleRenderer";
 import { articles, getArticle, getCategory, type Block, type HeadingBlock, type StepsBlock } from "@/lib/articles";
-import { ChevronRight, Clock, CalendarDays, ArrowRight, MessageCircle } from "lucide-react";
+import { ChevronRight, Clock, CalendarDays, ArrowRight, MessageCircle, LifeBuoy } from "lucide-react";
 import { MobileTOC, FeedbackSection } from "./ArticleClient";
 
 const BASE_URL = "https://help.focusv.com";
@@ -371,6 +371,21 @@ export default async function ArticlePage({
                 </div>
               </section>
             )}
+
+            {/* Still need help? */}
+            <div className="mt-16 rounded-2xl border border-border bg-card/40 p-8 text-center">
+              <h2 className="text-lg font-semibold">Still need help?</h2>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Our support team is here for you. Submit a ticket and we&apos;ll get back to you within 1–2 business days.
+              </p>
+              <Link
+                href="/contact"
+                className="mt-4 inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground shadow-sm transition-all hover:opacity-90"
+              >
+                <LifeBuoy className="h-4 w-4" />
+                Submit a ticket
+              </Link>
+            </div>
           </article>
 
           {/* Desktop TOC */}
