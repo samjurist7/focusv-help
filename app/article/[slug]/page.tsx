@@ -35,6 +35,14 @@ const REDIRECT_MAP: Record<string, { slug: string; anchor?: string }> = {
   "how-to-use-with-the-app":               { slug: "carta-sport-connect-to-app" },
   "how-to-clean":                          { slug: "carta-sport-how-to-clean" },
   "how-to-remove-install-the-connect":     { slug: "carta-sport-install-connect" },
+  // V Browser App slug renames
+  "setting-up-the-carta-app-on-iphone":                   { slug: "v-browser-setup-iphone" },
+  "setting-up-the-carta-app-on-android":                  { slug: "v-browser-setup-android" },
+  "how-to-use-the-focus-v-app":                           { slug: "v-browser-how-to-use" },
+  "bluetooth-connection-to-the-v-browser-troubleshooting":{ slug: "v-browser-bluetooth-troubleshooting" },
+  "how-to-transfer-ownership":                            { slug: "v-browser-transfer-ownership" },
+  "how-to-release-ownership":                             { slug: "v-browser-release-ownership" },
+  "how-to-claim-v-rewards":                               { slug: "v-browser-v-rewards" },
   // CARTA Classic slug renames
   "how-to-use-your-carta-classic":                                                    { slug: "carta-classic-how-to-use" },
   "how-to-clean-your-carta-classic-everlast-atomizer":                                { slug: "carta-classic-how-to-clean" },
