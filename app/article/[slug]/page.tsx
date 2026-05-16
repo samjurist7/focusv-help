@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Layout } from "@/components/Layout";
 import { ArticleRenderer } from "@/components/article/ArticleRenderer";
 import { articles, getArticle, getCategory, type Block, type HeadingBlock, type StepsBlock } from "@/lib/articles";
-import { ChevronRight, Clock, CalendarDays, ArrowRight, MessageCircle, LifeBuoy } from "lucide-react";
+import { ChevronRight, Clock, CalendarDays, ArrowRight, LifeBuoy } from "lucide-react";
 import { MobileTOC, FeedbackSection } from "./ArticleClient";
 
 const BASE_URL = "https://help.focusv.com";
@@ -322,28 +322,6 @@ export default async function ArticlePage({
             <FeedbackSection slug={article.slug} />
 
             {/* Contact CTA */}
-            <div className="mt-6 flex flex-col items-start justify-between gap-4 rounded-2xl border border-accent/20 bg-accent/5 p-6 sm:flex-row sm:items-center">
-              <div className="flex items-start gap-3">
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-accent/15 text-accent">
-                  <MessageCircle className="h-5 w-5" />
-                </span>
-                <div>
-                  <div className="font-semibold">Still need help?</div>
-                  <div className="text-sm text-muted-foreground">
-                    Reach out and we&apos;ll respond quickly.
-                  </div>
-                </div>
-              </div>
-              <a
-                href="https://portal.focusv.com"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground hover:opacity-90"
-              >
-                Contact support <ArrowRight className="h-4 w-4" />
-              </a>
-            </div>
-
             {/* Related */}
             {related.length > 0 && (
               <section className="mt-16">
