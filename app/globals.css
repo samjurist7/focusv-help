@@ -72,6 +72,13 @@
     background-color: var(--background);
     color: var(--foreground);
     -webkit-font-smoothing: antialiased;
+}
+
+/* Kill Safari/iOS native blue focus ring on inputs */
+input[type="search"],
+input[type="text"] {
+  outline: none !important;
+  -webkit-appearance: none;
     text-rendering: optimizeLegibility;
   }
   ::selection {
