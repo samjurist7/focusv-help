@@ -15,12 +15,26 @@ export function generateStaticParams() {
 
 // Maps unpublished slugs → the consolidated article they were merged into
 const REDIRECT_MAP: Record<string, { slug: string; anchor?: string }> = {
+  // Legacy error code slugs → consolidated pages
   "error-code-flashing-red-white":  { slug: "carta-sport-error-codes", anchor: "red-white-flashing-overheat" },
   "error-code-flashing-red-purple": { slug: "carta-sport-error-codes", anchor: "red-purple-flashing-open-circuit" },
   "error-code-flashing-red-yellow": { slug: "carta-sport-error-codes", anchor: "red-yellow-flashing-short-circuit" },
   "red-white-flashing-lights":      { slug: "aeris-error-codes", anchor: "red-white-flashing-overheat" },
   "red-yellow-flashing-lights":     { slug: "aeris-error-codes", anchor: "red-yellow-flashing-short-circuit" },
   "red-purple-flashing-lights":     { slug: "aeris-error-codes", anchor: "red-purple-flashing-open-circuit" },
+  // AERIS slug renames
+  "how-to-use-your-aeris":                 { slug: "aeris-how-to-use" },
+  "how-to-connect-your-aeris-to-the-app":  { slug: "aeris-connect-to-app" },
+  "how-to-clean-your-aeris":               { slug: "aeris-how-to-clean" },
+  "avoiding-excess-reclaim":               { slug: "aeris-avoiding-excess-reclaim" },
+  "best-charging-practices":               { slug: "aeris-charging-battery" },
+  "how-to-change-your-ceramic-mouthpiece": { slug: "aeris-replace-ceramic-mouthpiece" },
+  "how-to-change-your-aeris-battery":      { slug: "aeris-replace-battery" },
+  // CARTA Sport slug renames
+  "how-to-use":                            { slug: "carta-sport-how-to-use" },
+  "how-to-use-with-the-app":               { slug: "carta-sport-connect-to-app" },
+  "how-to-clean":                          { slug: "carta-sport-how-to-clean" },
+  "how-to-remove-install-the-connect":     { slug: "carta-sport-install-connect" },
 };
 
 export async function generateMetadata({
