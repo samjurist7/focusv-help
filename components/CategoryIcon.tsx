@@ -1,42 +1,30 @@
 import {
-  Rocket,
-  Wrench,
-  Sparkles,
   ShieldCheck,
   BookOpen,
-  Package,
   Smartphone,
-  CreditCard,
-  Flame,
-  Cpu,
-  Zap,
-  CircuitBoard,
-  Wand2,
   BatteryCharging,
   Store,
   type LucideIcon,
 } from "lucide-react";
 
-const map: Record<string, LucideIcon> = {
-  Rocket, Wrench, Sparkles, ShieldCheck, BookOpen, Package,
-  Smartphone, CreditCard, Flame, Cpu, Zap, CircuitBoard,
-  Wand2, BatteryCharging, Store,
+const iconMap: Record<string, LucideIcon> = {
+  // Categories that use real icons instead of monograms
+  "carta-app":                  Smartphone,
+  "wireless-charger":           BatteryCharging,
+  "focus-v-wholesale":          Store,
+  "focus-v-polices-conditions": ShieldCheck,
 };
 
 /** Monogram map: category slug → short display label */
 const monograms: Record<string, string> = {
-  "aeris":                    "AER",
-  "carta-2":                  "C2",
-  "carta-sport":              "CS",
-  "intelli-core-max":         "MAX",
-  "intelli-core-standard":    "IC",
-  "saber":                    "SAB",
-  "carta-classic":            "CC",
-  "carta-original":           "CO",
-  "wireless-charger":         "WC",
-  "carta-app":                "APP",
-  "focus-v-wholesale":        "WHL",
-  "focus-v-polices-conditions": "POL",
+  "aeris":                 "AER",
+  "carta-2":               "C2",
+  "carta-sport":           "CS",
+  "intelli-core-max":      "MAX",
+  "intelli-core-standard": "IC",
+  "saber":                 "SAB",
+  "carta-classic":         "CC",
+  "carta-original":        "OG",
 };
 
 export function CategoryIcon({
@@ -48,9 +36,15 @@ export function CategoryIcon({
   className?: string;
   slug?: string;
 }) {
-  const monogram = slug ? monograms[slug] : monograms[name];
+  const key = slug ?? name;
+
+  // Real icon categories
+  const Icon = iconMap[key];
+  if (Icon) return <Icon className={className} />;
+
+  // Monogram categories
+  const monogram = monograms[key];
   if (monogram) {
-    // Scale font size based on className size hint
     const isSmall = className.includes("h-4");
     return (
       <span
@@ -61,6 +55,7 @@ export function CategoryIcon({
       </span>
     );
   }
-  const Icon = map[name] ?? BookOpen;
-  return <Icon className={className} />;
+
+  // Fallback
+  return <BookOpen className={className} />;
 }
