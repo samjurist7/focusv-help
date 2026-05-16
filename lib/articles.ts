@@ -57,14 +57,37 @@ const POPULAR_SLUGS = [
 export const popularArticles = () =>
   POPULAR_SLUGS.map(slug => publishedArticles.find(a => a.slug === slug)).filter(Boolean) as Article[];
 
+function extractBlockText(b: Block): string {
+  const parts: string[] = [];
+  if ("text" in b && typeof (b as { text?: string }).text === "string") parts.push((b as { text: string }).text);
+  if ("body" in b && typeof (b as { body?: string }).body === "string") parts.push((b as { body: string }).body);
+  if ("title" in b && typeof (b as { title?: string }).title === "string") parts.push((b as { title: string }).title);
+  if ("items" in b) {
+    const items = (b as { items?: unknown }).items;
+    if (Array.isArray(items)) {
+      for (const item of items) {
+        if (typeof item === "string") parts.push(item);
+        else if (item && typeof item === "object") {
+          const s = item as Record<string, unknown>;
+          if (typeof s.title === "string") parts.push(s.title);
+          if (typeof s.body === "string") parts.push(s.body);
+          if (typeof s.text === "string") parts.push(s.text);
+        }
+      }
+    }
+  }
+  return parts.join(" ");
+}
+
 export function searchArticles(q: string) {
   const query = q.trim().toLowerCase();
   if (!query) return [];
   return publishedArticles
     .map((a) => {
-      const haystack = [a.title, a.summary, ...a.blocks.map((b) => ("text" in b ? b.text : "title" in b ? (b as { title?: string }).title ?? "" : "body" in b ? (b as { body?: string }).body ?? "" : ""))].join(" ").toLowerCase();
+      const parts = [a.title, a.summary, ...a.blocks.map(extractBlockText)];
+      const haystack = parts.join(" ").toLowerCase();
       const idx = haystack.indexOf(query);
-      if (idx === -1 && !a.title.toLowerCase().includes(query)) return null;
+      if (idx === -1) return null;
       const start = Math.max(0, idx - 60);
       const snippet = (start > 0 ? "…" : "") + haystack.slice(start, start + 180) + "…";
       return { article: a, snippet };
