@@ -244,7 +244,7 @@ export default async function ArticlePage({
             </div>
 
             {/* Feedback */}
-            <FeedbackSection />
+            <FeedbackSection slug={article.slug} />
 
             {/* Contact CTA */}
             <div className="mt-6 flex flex-col items-start justify-between gap-4 rounded-2xl border border-accent/20 bg-accent/5 p-6 sm:flex-row sm:items-center">
