@@ -164,6 +164,14 @@ function Header() {
             <Search className="h-4 w-4" />
           </button>
           <ThemeToggle />
+          <a
+            href="https://focusv.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden h-9 items-center gap-1.5 rounded-lg border border-border bg-card/60 px-3.5 text-sm font-semibold text-foreground transition-colors hover:bg-muted sm:inline-flex"
+          >
+            Shop Focus V
+          </a>
           <Link
             href="/contact"
             className="hidden h-9 items-center gap-1.5 rounded-lg bg-accent px-3.5 text-sm font-semibold text-accent-foreground shadow-sm transition-all hover:opacity-90 sm:inline-flex"
