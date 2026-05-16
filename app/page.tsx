@@ -79,7 +79,7 @@ export default function HomePage() {
               Browse by category
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Eight focused sections covering every part of your Focus V
+              Everything you need, organized by product and topic
               experience.
             </p>
           </div>
