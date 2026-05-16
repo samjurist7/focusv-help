@@ -1,7 +1,98 @@
 "use client";
 
 import React, { useRef, useState } from "react";
-import { CheckCircle, ChevronLeft, Loader2, X, Upload } from "lucide-react";
+import Link from "next/link";
+import { CheckCircle, ChevronLeft, Loader2, X, Upload, BookOpen } from "lucide-react";
+import { publishedArticles } from "@/lib/articles";
+
+// ─── Article recommendations ─────────────────────────────────────────────────
+
+type ArticleRec = { slug: string; title: string; summary: string };
+
+// Device → article category mapping
+const DEVICE_CATEGORY: Record<string, string> = {
+  "CARTA 2": "carta-2",
+  "CARTA SPORT": "carta-sport",
+  "AERIS": "aeris",
+  "SABER": "saber",
+  "INTELLICORE": "intelli-core-standard",
+};
+
+// Issue type → preferred slug keywords (matched against slug)
+const ISSUE_SLUG_HINTS: Record<string, string[]> = {
+  "Not heating": ["over-under-heating", "overunder-heating", "troubleshooting", "error"],
+  "Won't turn on": ["how-to-use", "error", "troubleshooting"],
+  "Battery / charging": ["charging", "battery", "error"],
+  "Atomizer not detected": ["incorrect-atomizer", "error", "atomizer"],
+  "App / Bluetooth": ["bluetooth", "connect-to-app", "v-browser"],
+  "Broken / cracked": ["how-to-clean", "care-guide"],
+  "Leaking": ["avoiding", "overspill", "reclaim", "how-to-clean"],
+  "LED / display": ["error-codes", "error"],
+  "Can't connect to device": ["bluetooth", "connect-to-app", "v-browser-bluetooth"],
+  "App won't open / crashes": ["v-browser-setup", "v-browser-how-to-use"],
+  "Firmware update": ["connect-to-app", "v-browser-how-to-use"],
+  "Settings not saving": ["v-browser-how-to-use", "connect-to-app"],
+};
+
+// Category → fallback slugs when no device/issue match
+const CATEGORY_FALLBACKS: Record<string, string[]> = {
+  device: ["limited-warranty", "focus-v-product-registration"],
+  app: ["v-browser-how-to-use", "v-browser-bluetooth-troubleshooting", "v-browser-setup-iphone"],
+  order: ["shipping-policy", "return-policy"],
+  returns: ["return-policy", "limited-warranty"],
+  other: ["limited-warranty", "focus-v-product-registration"],
+};
+
+function getRecommendedArticles(
+  category: string,
+  device: string,
+  issues: string[],
+  appIssues: string[],
+  allArticles: ArticleRec[]
+): ArticleRec[] {
+  const results: ArticleRec[] = [];
+  const seen = new Set<string>();
+
+  const add = (a: ArticleRec) => {
+    if (!seen.has(a.slug)) { seen.add(a.slug); results.push(a); }
+  };
+
+  const deviceCategory = DEVICE_CATEGORY[device];
+  const allIssues = [...issues, ...appIssues];
+
+  // 1. Issue-specific matches within the device's category
+  for (const issue of allIssues) {
+    const hints = ISSUE_SLUG_HINTS[issue] ?? [];
+    for (const hint of hints) {
+      const match = allArticles.find(a =>
+        a.slug.includes(hint) &&
+        (deviceCategory ? a.slug.includes(deviceCategory.split("-")[0]) || a.slug.startsWith(deviceCategory.split("-")[0]) : true)
+      );
+      if (match) add(match);
+      if (results.length >= 3) return results;
+    }
+  }
+
+  // 2. Device category articles (how-to-use, error-codes, how-to-clean)
+  if (deviceCategory) {
+    const priority = ["error-codes", "how-to-use", "how-to-clean", "troubleshooting", "bluetooth"];
+    for (const p of priority) {
+      const match = allArticles.find(a => a.slug.includes(p) && a.slug.split("-")[0] === deviceCategory.split("-")[0]);
+      if (match) add(match);
+      if (results.length >= 3) return results;
+    }
+  }
+
+  // 3. Category fallbacks
+  const fallbacks = CATEGORY_FALLBACKS[category] ?? [];
+  for (const slug of fallbacks) {
+    const match = allArticles.find(a => a.slug === slug);
+    if (match) add(match);
+    if (results.length >= 3) return results;
+  }
+
+  return results;
+}
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
@@ -284,8 +375,23 @@ export default function ContactForm() {
   // ── Success ────────────────────────────────────────────────────────────────
 
   if (ticketId !== null) {
+    const allArticles: ArticleRec[] = publishedArticles.map(a => ({
+      slug: a.slug,
+      title: a.title,
+      summary: a.summary,
+    }));
+
+    const recs = getRecommendedArticles(
+      state.category,
+      state.device,
+      state.issues,
+      state.appIssues,
+      allArticles,
+    );
+
     return (
-      <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 lg:px-8 space-y-6">
+        {/* Success card */}
         <div className="rounded-2xl border border-border bg-card/40 p-10 text-center">
           <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-accent/10">
             <CheckCircle className="h-9 w-9 text-accent" />
@@ -297,12 +403,6 @@ export default function ContactForm() {
           {ticketId && (
             <p className="mt-2 text-sm font-medium text-accent">Ticket #{ticketId}</p>
           )}
-          <p className="mt-2 text-sm text-muted-foreground">
-            Need urgent help?{" "}
-            <a href="mailto:support@focusv.com" className="text-accent hover:underline">
-              support@focusv.com
-            </a>
-          </p>
           <a
             href="/"
             className="mt-8 inline-flex items-center gap-2 rounded-xl border border-border bg-card/60 px-5 py-2.5 text-sm font-medium hover:border-accent/40 transition-colors"
@@ -310,6 +410,32 @@ export default function ContactForm() {
             Back to Help Center
           </a>
         </div>
+
+        {/* Recommended articles */}
+        {recs.length > 0 && (
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <BookOpen className="h-4 w-4 text-accent" />
+              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                While you wait — these articles might help
+              </h2>
+            </div>
+            <div className="grid gap-3">
+              {recs.map((a) => (
+                <Link
+                  key={a.slug}
+                  href={`/article/${a.slug}`}
+                  className="group rounded-xl border border-border bg-card/40 p-4 transition-colors hover:border-accent/40 hover:bg-card"
+                >
+                  <h3 className="text-sm font-semibold transition-colors group-hover:text-accent">
+                    {a.title}
+                  </h3>
+                  <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{a.summary}</p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     );
   }
