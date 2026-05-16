@@ -11,6 +11,7 @@ import {
   ExternalLink,
   ChevronDown,
   LifeBuoy,
+  MessageSquarePlus,
 } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Logo } from "./Logo";
@@ -18,6 +19,7 @@ import { useTheme } from "./ThemeProvider";
 import { SearchBar } from "./SearchBar";
 import { categories } from "@/lib/articles";
 import { CategoryIcon } from "./CategoryIcon";
+import FeedbackWidget from "./FeedbackWidget";
 
 const navLinks = [
   { to: "/", label: "Home" },
@@ -115,6 +117,7 @@ function Header() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
 
   useEffect(() => {
     setMobileOpen(false);
@@ -162,6 +165,13 @@ function Header() {
             className="grid h-9 w-9 place-items-center rounded-lg border border-border bg-card/60 text-foreground transition-colors hover:bg-muted lg:hidden"
           >
             <Search className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => setFeedbackOpen(true)}
+            aria-label="Submit feedback"
+            className="grid h-9 w-9 place-items-center rounded-lg border border-border bg-card/60 text-foreground transition-colors hover:bg-muted"
+          >
+            <MessageSquarePlus className="h-4 w-4" />
           </button>
           <ThemeToggle />
           <a
@@ -241,6 +251,7 @@ function Header() {
           </nav>
         </div>
       )}
+      <FeedbackWidget open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
     </header>
   );
 }
