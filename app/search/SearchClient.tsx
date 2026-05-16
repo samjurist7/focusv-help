@@ -3,14 +3,39 @@
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { SearchBar } from "@/components/SearchBar";
-import { categories, getCategory, articles } from "@/lib/articles";
+import { categories, getCategory, articles, type Block } from "@/lib/articles";
 import { ArrowRight, Clock, SearchX } from "lucide-react";
 import Fuse from "fuse.js";
 import { useMemo } from "react";
 
-const fuse = new Fuse(articles, {
-  keys: ["title", "summary"],
-  threshold: 0.4,
+/** Flatten all text from an article's blocks into a single searchable string */
+function extractBody(blocks: Block[]): string {
+  const parts: string[] = [];
+  for (const b of blocks) {
+    if (b.type === "paragraph" || b.type === "heading") parts.push(b.text ?? "");
+    else if (b.type === "list") parts.push(...(b.items ?? []));
+    else if (b.type === "callout") parts.push((b as { body?: string }).body ?? "");
+    else if (b.type === "steps") {
+      for (const s of (b as { items?: { title: string; body: string }[] }).items ?? []) {
+        parts.push(s.title, s.body);
+      }
+    }
+  }
+  return parts.join(" ");
+}
+
+const indexedArticles = articles.map((a) => ({
+  ...a,
+  body: extractBody(a.blocks ?? []),
+}));
+
+const fuse = new Fuse(indexedArticles, {
+  keys: [
+    { name: "title", weight: 3 },
+    { name: "summary", weight: 2 },
+    { name: "body", weight: 1 },
+  ],
+  threshold: 0.35,
   includeScore: true,
 });
 
@@ -35,10 +60,19 @@ export function SearchClient() {
 
   const results = useMemo(() => {
     if (!q.trim()) return [];
-    return fuse.search(q).map((r) => ({
-      article: r.item,
-      snippet: r.item.summary,
-    }));
+    return fuse.search(q).map((r) => {
+      const item = r.item;
+      // If the match was in the body (not title/summary), find a relevant snippet
+      const ql = q.toLowerCase();
+      let snippet = item.summary;
+      if (!snippet.toLowerCase().includes(ql) && item.body.toLowerCase().includes(ql)) {
+        const idx = item.body.toLowerCase().indexOf(ql);
+        const start = Math.max(0, idx - 60);
+        const end = Math.min(item.body.length, idx + q.length + 80);
+        snippet = (start > 0 ? "…" : "") + item.body.slice(start, end) + (end < item.body.length ? "…" : "");
+      }
+      return { article: item, snippet };
+    });
   }, [q]);
 
   return (
