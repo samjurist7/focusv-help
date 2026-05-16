@@ -1,108 +1,121 @@
 "use client";
 
 import React, { useRef, useState } from "react";
-import {
-  Wrench,
-  Smartphone,
-  Package,
-  RotateCcw,
-  HelpCircle,
-  CheckCircle,
-  Loader2,
-  ImagePlus,
-  XCircle,
-  ChevronLeft,
-  ArrowRight,
-} from "lucide-react";
-
-// ─── Types ───────────────────────────────────────────────────────────────────
-
-type Category = {
-  id: string;
-  label: string;
-  icon: React.ReactNode;
-  hasDevice: boolean;
-};
-
-type Device = { id: string; label: string };
-
-type IssueSet = { id: string; label: string };
+import { CheckCircle, ChevronLeft, Loader2, X, Upload } from "lucide-react";
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
-const CATEGORIES: Category[] = [
-  { id: "Device / Warranty", label: "Device / Warranty", icon: <Wrench className="h-5 w-5" />, hasDevice: true },
-  { id: "App Issue", label: "App Issue", icon: <Smartphone className="h-5 w-5" />, hasDevice: true },
-  { id: "Order & Shipping", label: "Order & Shipping", icon: <Package className="h-5 w-5" />, hasDevice: false },
-  { id: "Returns & Refunds", label: "Returns & Refunds", icon: <RotateCcw className="h-5 w-5" />, hasDevice: false },
-  { id: "General Question", label: "General Question", icon: <HelpCircle className="h-5 w-5" />, hasDevice: false },
+const FV_COLORWAYS: Record<string, string[]> = {
+  "CARTA 2": ["Black", "Bordeaux", "Clear", "Forest", "Grape", "Midnight", "Mint"],
+  "CARTA SPORT": ["Black", "Lilac", "Tangerine", "Teal"],
+  "AERIS": ["Black", "Bubblegum", "Clear", "Grape", "Jade", "Midnight"],
+  "SABER": ["Black", "Bordeaux", "Bubblegum", "Clear", "Forest", "Grape", "Jade", "Lilac", "Midnight", "Mint", "Tangerine", "Teal"],
+  "INTELLICORE": ["Standard", "MAX", "Dry Herb"],
+  "OTHER": ["Smoke", "Clear", "Orange", "Green", "Purple", "Blue", "Red"],
+};
+
+const FV_COLORWAY_LABEL: Record<string, string> = {
+  "INTELLICORE": "INTELLICORE Type",
+  "OTHER": "Glass Top Color",
+};
+
+const FV_SERIALS: Record<string, { id: string; label: string }[]> = {
+  "AERIS": [
+    { id: "fv_sb", label: "Base Unit Serial #" },
+    { id: "fv_sbat", label: "Battery Serial #" },
+    { id: "fv_sa", label: "Atomizer Serial #" },
+  ],
+  "CARTA 2": [
+    { id: "fv_sb", label: "Base Unit Serial #" },
+    { id: "fv_sa", label: "Atomizer Serial #" },
+  ],
+  "CARTA SPORT": [
+    { id: "fv_sb", label: "Base Unit Serial #" },
+    { id: "fv_sa", label: "Atomizer Serial #" },
+  ],
+  "SABER": [{ id: "fv_sb", label: "Serial #" }],
+  "INTELLICORE": [{ id: "fv_sa", label: "Atomizer Serial #" }],
+  "OTHER": [{ id: "fv_ss", label: "Serial #" }],
+};
+
+// Category options
+const CATEGORIES = [
+  { id: "device", label: "Device / Warranty", emoji: "🔧" },
+  { id: "app", label: "App Issue", emoji: "📱" },
+  { id: "order", label: "Order & Shipping", emoji: "📦" },
+  { id: "returns", label: "Return / Refund", emoji: "↩️" },
+  { id: "other", label: "General Inquiry", emoji: "💬" },
 ];
 
-const DEVICES: Device[] = [
+// Device options — keys must match FV_COLORWAYS / FV_SERIALS
+const DEVICES = [
   { id: "CARTA 2", label: "CARTA 2" },
   { id: "CARTA SPORT", label: "CARTA SPORT" },
   { id: "AERIS", label: "AERIS" },
   { id: "SABER", label: "SABER" },
-  { id: "INTELLI-CORE Atomizer", label: "INTELLI-CORE Atomizer" },
-  { id: "Other / Accessory", label: "Other / Accessory" },
+  { id: "INTELLICORE", label: "INTELLICORE Atomizer" },
+  { id: "OTHER", label: "Other / Accessory" },
 ];
 
-const DEVICE_ISSUES: IssueSet[] = [
-  { id: "Not heating", label: "Not heating" },
-  { id: "Won't turn on", label: "Won't turn on" },
-  { id: "Battery / charging", label: "Battery / charging" },
-  { id: "Atomizer not detected", label: "Atomizer not detected" },
-  { id: "App / Bluetooth", label: "App / Bluetooth" },
-  { id: "Broken / cracked", label: "Broken / cracked" },
-  { id: "Leaking", label: "Leaking" },
-  { id: "LED / display", label: "LED / display" },
-  { id: "Other", label: "Other" },
+const DEVICE_ISSUES = [
+  "Not heating",
+  "Won't turn on",
+  "Battery / charging",
+  "Atomizer not detected",
+  "App / Bluetooth",
+  "Broken / cracked",
+  "Leaking",
+  "LED / display",
+  "Other",
 ];
 
-const APP_ISSUES: IssueSet[] = [
-  { id: "Can't connect to device", label: "Can't connect to device" },
-  { id: "Won't open / crashes", label: "Won't open / crashes" },
-  { id: "Settings not saving", label: "Settings not saving" },
-  { id: "Firmware update", label: "Firmware update" },
-  { id: "Login / account", label: "Login / account" },
-  { id: "iOS", label: "iOS" },
-  { id: "Android", label: "Android" },
-  { id: "Other", label: "Other" },
+const APP_ISSUES = [
+  "Can't connect to device",
+  "Won't open / crashes",
+  "Settings not saving",
+  "Firmware update",
+  "Login / account",
+  "iOS",
+  "Android",
+  "Other",
 ];
 
-// ─── Step indicator ───────────────────────────────────────────────────────────
+const CATS_LABEL: Record<string, string> = {
+  device: "Device/Warranty",
+  app: "App Issue",
+  order: "Order & Shipping",
+  returns: "Return/Refund",
+  other: "General Inquiry",
+};
 
-function StepIndicator({ current, total }: { current: number; total: number }) {
+// ─── Step type ────────────────────────────────────────────────────────────────
+
+type Step = "step1" | "step2-device" | "step2-issue" | "step2-app" | "step3" | "step4" | "step5";
+
+// ─── Progress bar ─────────────────────────────────────────────────────────────
+
+function ProgressBar({ step }: { step: Step }) {
+  const segment =
+    step === "step1"
+      ? 1
+      : step === "step2-device" || step === "step2-issue" || step === "step2-app"
+      ? 2
+      : step === "step3"
+      ? 3
+      : step === "step4" || step === "step5"
+      ? 4
+      : 1;
+
   return (
-    <div className="mb-8">
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-xs font-medium text-muted-foreground">
-          Step {current} of {total}
-        </span>
-        <span className="text-xs text-muted-foreground">
-          {Math.round(((current - 1) / total) * 100)}% complete
-        </span>
-      </div>
-      <div className="h-1.5 w-full rounded-full bg-border">
+    <div className="mb-8 flex gap-2">
+      {[1, 2, 3, 4].map((n) => (
         <div
-          className="h-1.5 rounded-full bg-accent transition-all duration-500"
-          style={{ width: `${((current - 1) / total) * 100}%` }}
+          key={n}
+          className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
+            n <= segment ? "bg-accent" : "bg-border"
+          }`}
         />
-      </div>
-      <div className="mt-3 flex gap-2">
-        {Array.from({ length: total }, (_, i) => (
-          <div
-            key={i}
-            className={`h-2 flex-1 rounded-full transition-all duration-300 ${
-              i + 1 < current
-                ? "bg-accent"
-                : i + 1 === current
-                ? "bg-accent/50"
-                : "bg-border"
-            }`}
-          />
-        ))}
-      </div>
+      ))}
     </div>
   );
 }
@@ -110,171 +123,167 @@ function StepIndicator({ current, total }: { current: number; total: number }) {
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function ContactForm() {
-  // Form state
-  const [step, setStep] = useState(1);
-  const [category, setCategory] = useState<string>("");
-  const [device, setDevice] = useState<string>("");
-  const [issueTypes, setIssueTypes] = useState<string[]>([]);
-  const [message, setMessage] = useState("");
-  const [screenshots, setScreenshots] = useState<File[]>([]);
-  const [previews, setPreviews] = useState<string[]>([]);
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [orderNumber, setOrderNumber] = useState("");
+  const [step, setStep] = useState<Step>("step1");
+  const [state, setState] = useState({
+    category: "" as string,
+    device: "" as string,
+    issues: [] as string[],
+    appIssues: [] as string[],
+    description: "",
+    serials: {} as Record<string, string>,
+    colorway: "",
+    purchaseDate: "",
+    purchaseFrom: "",
+    registered: "",
+    files: [] as File[],
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    orderNumber: "",
+  });
+
   const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [ticketId, setTicketId] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState("");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const selectedCategory = CATEGORIES.find((c) => c.id === category);
-  const needsDeviceStep = selectedCategory?.hasDevice ?? false;
-  const totalSteps = needsDeviceStep ? 4 : 3;
-  // Actual step numbers — step 1 = category, step 2 = device (if needed), step 3 = describe, step 4 = contact
-  // We map "visual step" to "logical step":
-  //   visual 1 → category
-  //   visual 2 → device (if needsDeviceStep) OR describe (if not)
-  //   visual 3 → describe (if needsDeviceStep) OR contact (if not)
-  //   visual 4 → contact (if needsDeviceStep)
-  function getLogicalStep(visual: number): "category" | "device" | "describe" | "contact" {
-    if (visual === 1) return "category";
-    if (needsDeviceStep) {
-      if (visual === 2) return "device";
-      if (visual === 3) return "describe";
-      return "contact";
-    } else {
-      if (visual === 2) return "describe";
-      return "contact";
-    }
+  // ── Helpers ────────────────────────────────────────────────────────────────
+
+  function set<K extends keyof typeof state>(key: K, value: (typeof state)[K]) {
+    setState((prev) => ({ ...prev, [key]: value }));
   }
 
-  const logicalStep = getLogicalStep(step);
-  const issueOptions = category === "App Issue" ? APP_ISSUES : DEVICE_ISSUES;
+  function toggleIssue(issue: string, field: "issues" | "appIssues") {
+    setState((prev) => ({
+      ...prev,
+      [field]: prev[field].includes(issue)
+        ? prev[field].filter((x: string) => x !== issue)
+        : [...prev[field], issue],
+    }));
+  }
 
-  // ── Photo handling ──────────────────────────────────────────────────────────
+  function setSerial(id: string, value: string) {
+    setState((prev) => ({ ...prev, serials: { ...prev.serials, [id]: value } }));
+  }
 
   function handleFiles(files: FileList | null) {
     if (!files) return;
-    const newFiles = Array.from(files).slice(0, 3 - screenshots.length);
-    const combined = [...screenshots, ...newFiles].slice(0, 3);
-    setScreenshots(combined);
-    // Read new previews
-    combined.forEach((f, i) => {
-      if (previews[i]) return;
-      const reader = new FileReader();
-      reader.onload = (e) =>
-        setPreviews((prev) => {
-          const next = [...prev];
-          next[i] = e.target?.result as string;
-          return next;
-        });
-      reader.readAsDataURL(f);
-    });
+    const newFiles = Array.from(files);
+    setState((prev) => ({
+      ...prev,
+      files: [...prev.files, ...newFiles].slice(0, 5),
+    }));
   }
 
-  function removeScreenshot(idx: number) {
-    setScreenshots((prev) => prev.filter((_, i) => i !== idx));
-    setPreviews((prev) => prev.filter((_, i) => i !== idx));
+  function removeFile(idx: number) {
+    setState((prev) => ({ ...prev, files: prev.files.filter((_, i) => i !== idx) }));
   }
 
-  function toggleIssue(id: string) {
-    setIssueTypes((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
+  // ── Category select (step1 → next) ────────────────────────────────────────
+
+  function selectCategory(id: string) {
+    setState((prev) => ({
+      ...prev,
+      category: id,
+      device: "",
+      issues: [],
+      appIssues: [],
+      serials: {},
+      colorway: "",
+      purchaseDate: "",
+      purchaseFrom: "",
+      registered: "",
+    }));
+    if (id === "device") setStep("step2-device");
+    else if (id === "app") setStep("step2-app");
+    else setStep("step3");
   }
 
-  // ── Navigation ──────────────────────────────────────────────────────────────
+  // ── Device select (step2-device → step2-issue) ────────────────────────────
 
-  function validateStep(): boolean {
-    const newErrors: Record<string, string> = {};
-    if (logicalStep === "category" && !category) {
-      newErrors.category = "Please select a category.";
-    }
-    if (logicalStep === "device" && !device) {
-      newErrors.device = "Please select your device.";
-    }
-    if (logicalStep === "describe" && !message.trim()) {
-      newErrors.message = "Please describe your issue.";
-    }
-    if (logicalStep === "contact") {
-      if (!firstName.trim()) newErrors.firstName = "Required.";
-      if (!lastName.trim()) newErrors.lastName = "Required.";
-      if (!email.trim()) newErrors.email = "Required.";
-      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) newErrors.email = "Enter a valid email.";
-      if (!phone.trim()) newErrors.phone = "Required.";
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  function selectDevice(id: string) {
+    setState((prev) => ({ ...prev, device: id, serials: {}, colorway: "" }));
+    setStep("step2-issue");
   }
 
-  function next() {
-    if (!validateStep()) return;
-    setStep((s) => Math.min(s + 1, totalSteps));
-  }
+  // ── Submit ─────────────────────────────────────────────────────────────────
 
-  function back() {
-    setErrors({});
-    setStep((s) => Math.max(s - 1, 1));
-  }
-
-  // ── Submit ──────────────────────────────────────────────────────────────────
-
-  async function submit() {
-    if (!validateStep()) return;
+  async function fvSubmit() {
     setSubmitting(true);
+    setSubmitError("");
     try {
-      let screenshotUrls: string[] = [];
-
-      if (screenshots.length > 0) {
+      // 1. Upload files
+      const uploaded: { name: string; url: string }[] = [];
+      for (const file of state.files) {
         const fd = new FormData();
-        screenshots.forEach((f) => fd.append("files", f));
-        const uploadRes = await fetch("/api/feedback/upload", {
+        fd.append("file", file);
+        const r = await fetch("https://teamsho.app/api/cs/upload-public", {
           method: "POST",
           body: fd,
         });
-        if (uploadRes.ok) {
-          const { urls } = await uploadRes.json();
-          screenshotUrls = urls ?? [];
+        if (r.ok) {
+          const d = await r.json();
+          if (d.url) uploaded.push({ name: file.name, url: d.url });
         }
       }
 
-      const res = await fetch("/api/feedback", {
+      // 2. Build subject + body
+      const allIssues = [...state.issues, ...state.appIssues];
+      const subject = state.device
+        ? `${CATS_LABEL[state.category]} — ${state.device}${allIssues.length ? ": " + allIssues[0] : ""}`
+        : `${CATS_LABEL[state.category]} — ${state.firstName} ${state.lastName}`;
+
+      let body = state.description + "\n\n";
+      if (state.device) body += `Device: ${state.device}\n`;
+      if (allIssues.length) body += `Issues: ${allIssues.join(", ")}\n`;
+
+      Object.entries(state.serials).forEach(([k, v]) => {
+        if (!v) return;
+        if (k === "fv_sb") body += `Base Serial #: ${v}\n`;
+        else if (k === "fv_sbat") body += `Battery Serial #: ${v}\n`;
+        else if (k === "fv_sa") body += `Atomizer Serial #: ${v}\n`;
+        else body += `Serial #: ${v}\n`;
+      });
+
+      if (state.purchaseDate) body += `Purchase Date: ${state.purchaseDate}\n`;
+      if (state.colorway) body += `Colorway: ${state.colorway}\n`;
+      if (state.purchaseFrom) body += `Purchased From: ${state.purchaseFrom}\n`;
+      if (state.registered) body += `Registered: ${state.registered}\n`;
+      if (state.orderNumber) body += `Order #: ${state.orderNumber}\n`;
+      if (state.phone) body += `Phone: ${state.phone}\n`;
+
+      // 3. POST to teamsho
+      const res = await fetch("https://teamsho.app/api/cs/tickets/create-public", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          customer_first_name: firstName.trim(),
-          customer_last_name: lastName.trim(),
-          customer_email: email.trim(),
-          customer_phone: phone.trim(),
-          device_type: device || undefined,
-          issue_category: category,
-          issue_types: issueTypes.length > 0 ? issueTypes : undefined,
-          order_number: orderNumber.trim() || undefined,
-          message: message.trim(),
-          screenshot_urls: screenshotUrls,
-          page_path: "/contact",
+          toEmail: state.email,
+          toName: `${state.firstName} ${state.lastName}`,
+          subject,
+          body,
+          attachments: uploaded,
+          category: state.category,
+          device: state.device,
+          issues: allIssues,
         }),
       });
 
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error ?? "Failed to submit");
-      }
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.error || "Submission failed");
 
-      setSubmitted(true);
+      setTicketId(data.ticketId ?? null);
     } catch (err) {
-      console.error(err);
-      setErrors({ submit: err instanceof Error ? err.message : "Something went wrong. Please try again." });
+      setSubmitError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
     } finally {
       setSubmitting(false);
     }
   }
 
-  // ─── Success state ────────────────────────────────────────────────────────
+  // ── Success ────────────────────────────────────────────────────────────────
 
-  if (submitted) {
+  if (ticketId !== null) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="rounded-2xl border border-border bg-card/40 p-10 text-center">
@@ -285,12 +294,12 @@ export default function ContactForm() {
           <p className="mt-3 text-muted-foreground">
             We&apos;ll get back to you within 1–2 business days.
           </p>
+          {ticketId && (
+            <p className="mt-2 text-sm font-medium text-accent">Ticket #{ticketId}</p>
+          )}
           <p className="mt-2 text-sm text-muted-foreground">
             Need urgent help?{" "}
-            <a
-              href="mailto:support@focusv.com"
-              className="text-accent hover:underline"
-            >
+            <a href="mailto:support@focusv.com" className="text-accent hover:underline">
               support@focusv.com
             </a>
           </p>
@@ -305,7 +314,21 @@ export default function ContactForm() {
     );
   }
 
-  // ─── Form layout ─────────────────────────────────────────────────────────
+  // ─── Shared styles ────────────────────────────────────────────────────────
+
+  const inputCls =
+    "w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent/40";
+  const selectCls =
+    "w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent/40";
+  const primaryBtn =
+    "w-full rounded-xl bg-accent px-4 py-3 text-sm font-bold text-accent-foreground transition hover:opacity-90 disabled:opacity-60";
+  const backBtn =
+    "text-sm text-muted-foreground hover:text-foreground flex items-center gap-1";
+  const chipSelected = "border-accent bg-accent/10 text-accent";
+  const chipBase =
+    "rounded-xl border border-border bg-card/40 p-4 cursor-pointer transition-all hover:border-accent/40";
+
+  // ─── Form layout ──────────────────────────────────────────────────────────
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6 lg:px-8">
@@ -319,321 +342,476 @@ export default function ContactForm() {
         </p>
       </div>
 
-      {/* Step indicator */}
-      <StepIndicator current={step} total={totalSteps} />
+      {/* Progress bar */}
+      <ProgressBar step={step} />
 
-      {/* Step content */}
+      {/* Card */}
       <div className="rounded-2xl border border-border bg-card/40 p-6 sm:p-8">
 
-        {/* ── Step 1: Category ── */}
-        {logicalStep === "category" && (
+        {/* ── step1: Category ─────────────────────────────────────────────── */}
+        {step === "step1" && (
           <div>
             <h2 className="text-lg font-semibold mb-1">What do you need help with?</h2>
-            <p className="text-sm text-muted-foreground mb-5">Select the category that best fits your issue.</p>
+            <p className="text-sm text-muted-foreground mb-5">
+              Select the category that best fits your issue.
+            </p>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {CATEGORIES.map((cat) => (
                 <button
                   key={cat.id}
                   type="button"
-                  onClick={() => { setCategory(cat.id); setErrors({}); }}
-                  className={`flex items-center gap-3 rounded-xl border px-4 py-3.5 text-left transition-all hover:-translate-y-0.5 ${
-                    category === cat.id
-                      ? "border-accent bg-accent/10 text-foreground"
-                      : "border-border bg-card/20 hover:border-accent/40"
+                  onClick={() => selectCategory(cat.id)}
+                  className={`${chipBase} flex items-center gap-3 text-left ${
+                    state.category === cat.id ? chipSelected : ""
                   }`}
                 >
-                  <span className={`shrink-0 ${category === cat.id ? "text-accent" : "text-muted-foreground"}`}>
-                    {cat.icon}
-                  </span>
+                  <span className="text-xl">{cat.emoji}</span>
                   <span className="font-medium text-sm">{cat.label}</span>
-                  {category === cat.id && (
+                  {state.category === cat.id && (
                     <CheckCircle className="ml-auto h-4 w-4 text-accent shrink-0" />
                   )}
                 </button>
               ))}
             </div>
-            {errors.category && (
-              <p className="mt-3 text-sm text-red-500">{errors.category}</p>
-            )}
           </div>
         )}
 
-        {/* ── Step 2: Device (only when category requires it) ── */}
-        {logicalStep === "device" && (
+        {/* ── step2-device: Device select ──────────────────────────────────── */}
+        {step === "step2-device" && (
           <div>
+            <button type="button" onClick={() => setStep("step1")} className={`${backBtn} mb-5`}>
+              <ChevronLeft className="h-4 w-4" /> Back
+            </button>
             <h2 className="text-lg font-semibold mb-1">Which device?</h2>
-            <p className="text-sm text-muted-foreground mb-5">Select your Focus V device.</p>
-
-            <div className="flex flex-wrap gap-2 mb-6">
+            <p className="text-sm text-muted-foreground mb-5">
+              Select your Focus V device.
+            </p>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {DEVICES.map((d) => (
                 <button
                   key={d.id}
                   type="button"
-                  onClick={() => { setDevice(d.id); setErrors({}); }}
-                  className={`rounded-lg border px-4 py-2 text-sm font-medium transition-all ${
-                    device === d.id
-                      ? "border-accent bg-accent/10 text-foreground"
-                      : "border-border hover:border-accent/40"
+                  onClick={() => selectDevice(d.id)}
+                  className={`${chipBase} text-sm font-medium text-center py-3 ${
+                    state.device === d.id ? chipSelected : ""
                   }`}
                 >
                   {d.label}
                 </button>
               ))}
             </div>
-            {errors.device && (
-              <p className="mb-4 text-sm text-red-500">{errors.device}</p>
-            )}
+          </div>
+        )}
 
-            {/* Issue type checkboxes */}
-            <div>
-              <h3 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wide">
-                What&apos;s the issue? (optional — select all that apply)
-              </h3>
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                {issueOptions.map((issue) => (
-                  <label
-                    key={issue.id}
-                    className={`flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2.5 transition-all ${
-                      issueTypes.includes(issue.id)
-                        ? "border-accent bg-accent/10"
-                        : "border-border hover:border-accent/30"
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={issueTypes.includes(issue.id)}
-                      onChange={() => toggleIssue(issue.id)}
-                      className="h-4 w-4 accent-[var(--accent)] rounded"
-                    />
-                    <span className="text-sm">{issue.label}</span>
-                  </label>
-                ))}
-              </div>
+        {/* ── step2-issue: Issue chips ─────────────────────────────────────── */}
+        {step === "step2-issue" && (
+          <div>
+            <button type="button" onClick={() => setStep("step2-device")} className={`${backBtn} mb-5`}>
+              <ChevronLeft className="h-4 w-4" /> Back
+            </button>
+            <h2 className="text-lg font-semibold mb-1">What&apos;s the issue?</h2>
+            <p className="text-sm text-muted-foreground mb-5">
+              Select all that apply — this helps us route your ticket faster.
+            </p>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {DEVICE_ISSUES.map((issue) => (
+                <button
+                  key={issue}
+                  type="button"
+                  onClick={() => toggleIssue(issue, "issues")}
+                  className={`${chipBase} text-sm text-left flex items-center gap-2 ${
+                    state.issues.includes(issue) ? chipSelected : ""
+                  }`}
+                >
+                  {state.issues.includes(issue) && (
+                    <CheckCircle className="h-4 w-4 shrink-0 text-accent" />
+                  )}
+                  <span>{issue}</span>
+                </button>
+              ))}
+            </div>
+            <div className="mt-6">
+              <button
+                type="button"
+                onClick={() => setStep("step3")}
+                className={primaryBtn}
+              >
+                Continue
+              </button>
             </div>
           </div>
         )}
 
-        {/* ── Step: Describe ── */}
-        {logicalStep === "describe" && (
+        {/* ── step2-app: App issue chips ───────────────────────────────────── */}
+        {step === "step2-app" && (
           <div>
+            <button type="button" onClick={() => setStep("step1")} className={`${backBtn} mb-5`}>
+              <ChevronLeft className="h-4 w-4" /> Back
+            </button>
+            <h2 className="text-lg font-semibold mb-1">What&apos;s the app issue?</h2>
+            <p className="text-sm text-muted-foreground mb-5">
+              Select all that apply.
+            </p>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {APP_ISSUES.map((issue) => (
+                <button
+                  key={issue}
+                  type="button"
+                  onClick={() => toggleIssue(issue, "appIssues")}
+                  className={`${chipBase} text-sm text-left flex items-center gap-2 ${
+                    state.appIssues.includes(issue) ? chipSelected : ""
+                  }`}
+                >
+                  {state.appIssues.includes(issue) && (
+                    <CheckCircle className="h-4 w-4 shrink-0 text-accent" />
+                  )}
+                  <span>{issue}</span>
+                </button>
+              ))}
+            </div>
+            <div className="mt-6">
+              <button
+                type="button"
+                onClick={() => setStep("step3")}
+                className={primaryBtn}
+              >
+                Continue
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ── step3: Description + device fields + file uploads ────────────── */}
+        {step === "step3" && (
+          <div>
+            <button
+              type="button"
+              onClick={() => {
+                if (state.category === "device") setStep("step2-issue");
+                else if (state.category === "app") setStep("step2-app");
+                else setStep("step1");
+              }}
+              className={`${backBtn} mb-5`}
+            >
+              <ChevronLeft className="h-4 w-4" /> Back
+            </button>
             <h2 className="text-lg font-semibold mb-1">Tell us more</h2>
-            <p className="text-sm text-muted-foreground mb-5">Describe your issue in as much detail as you can.</p>
+            <p className="text-sm text-muted-foreground mb-5">
+              Describe your issue in as much detail as you can.
+            </p>
 
+            {/* Description */}
             <textarea
-              value={message}
-              onChange={(e) => { setMessage(e.target.value); setErrors((prev) => ({ ...prev, message: "" })); }}
+              value={state.description}
+              onChange={(e) => set("description", e.target.value)}
               placeholder="Describe what's happening, what you've tried, and any error messages…"
-              rows={6}
-              className={`w-full resize-none rounded-xl border bg-card/20 px-4 py-3 text-sm placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent transition-colors ${
-                errors.message ? "border-red-500" : "border-border"
-              }`}
+              rows={5}
+              className="w-full resize-none rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/40"
             />
-            {errors.message && (
-              <p className="mt-1.5 text-sm text-red-500">{errors.message}</p>
-            )}
 
-            {/* Photo upload */}
-            <div className="mt-5">
-              <h3 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wide">
-                Add photos (optional — up to 3)
-              </h3>
-              <div className="flex flex-wrap items-center gap-3">
-                {previews.map((src, i) => (
-                  <div
-                    key={i}
-                    className="relative h-20 w-20 overflow-hidden rounded-lg border border-border flex-shrink-0"
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={src} alt={`screenshot ${i + 1}`} className="h-full w-full object-cover" />
-                    <button
-                      type="button"
-                      onClick={() => removeScreenshot(i)}
-                      className="absolute right-0.5 top-0.5 rounded-full bg-black/60 p-0.5 text-white"
-                    >
-                      <XCircle className="h-3.5 w-3.5" />
-                    </button>
+            {/* Device fields — only when category=device AND device is set */}
+            {state.category === "device" && state.device && (
+              <div className="mt-6 space-y-4">
+                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                  Device Details
+                </h3>
+
+                {/* Serial number inputs */}
+                {(FV_SERIALS[state.device] ?? []).map(({ id, label }) => (
+                  <div key={id}>
+                    <label className="mb-1.5 block text-sm font-medium">{label}</label>
+                    <input
+                      type="text"
+                      value={state.serials[id] ?? ""}
+                      onChange={(e) => setSerial(id, e.target.value)}
+                      placeholder={label}
+                      className={inputCls}
+                    />
                   </div>
                 ))}
-                {screenshots.length < 3 && (
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="flex h-20 w-20 shrink-0 flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-border text-muted-foreground transition-colors hover:border-accent hover:text-accent"
+
+                {/* Purchase Date */}
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium">
+                    Purchase Date <span className="text-destructive">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    value={state.purchaseDate}
+                    onChange={(e) => set("purchaseDate", e.target.value)}
+                    required
+                    className={inputCls}
+                  />
+                </div>
+
+                {/* Colorway / type */}
+                {FV_COLORWAYS[state.device] && (
+                  <div>
+                    <label className="mb-1.5 block text-sm font-medium">
+                      {FV_COLORWAY_LABEL[state.device] ?? "Colorway"}{" "}
+                      <span className="text-destructive">*</span>
+                    </label>
+                    <select
+                      value={state.colorway}
+                      onChange={(e) => set("colorway", e.target.value)}
+                      required
+                      className={selectCls}
+                    >
+                      <option value="">Select…</option>
+                      {FV_COLORWAYS[state.device].map((c) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                {/* Where purchased */}
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium">
+                    Where purchased <span className="text-destructive">*</span>
+                  </label>
+                  <select
+                    value={state.purchaseFrom}
+                    onChange={(e) => set("purchaseFrom", e.target.value)}
+                    required
+                    className={selectCls}
                   >
-                    <ImagePlus className="h-5 w-5" />
-                    <span className="text-[10px] font-medium">Add</span>
-                  </button>
-                )}
-                {screenshots.length > 0 && (
-                  <span className="text-xs text-muted-foreground">{screenshots.length}/3</span>
-                )}
+                    <option value="">Select…</option>
+                    <option value="FocusV.com">FocusV.com</option>
+                    <option value="Amazon">Amazon</option>
+                    <option value="Retail store">Retail store</option>
+                    <option value="Other online retailer">Other online retailer</option>
+                  </select>
+                </div>
+
+                {/* Is device registered */}
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium">
+                    Is device registered? <span className="text-destructive">*</span>
+                  </label>
+                  <select
+                    value={state.registered}
+                    onChange={(e) => set("registered", e.target.value)}
+                    required
+                    className={selectCls}
+                  >
+                    <option value="">Select…</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                    <option value="Not sure">Not sure</option>
+                  </select>
+                </div>
+              </div>
+            )}
+
+            {/* File upload */}
+            <div className="mt-6">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+                Attachments (optional)
+              </h3>
+
+              {/* Drop zone */}
+              <div
+                className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border py-8 text-muted-foreground transition-colors hover:border-accent hover:text-accent"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <Upload className="h-6 w-6" />
+                <p className="text-sm font-medium">Click to add files</p>
+                <p className="text-xs">Photos, videos, or documents</p>
               </div>
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/*"
                 multiple
                 className="hidden"
                 onChange={(e) => handleFiles(e.target.files)}
               />
+
+              {/* File chips */}
+              {state.files.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {state.files.map((f, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center gap-1.5 rounded-full border border-border bg-card/60 px-3 py-1.5 text-xs"
+                    >
+                      <span className="max-w-[120px] truncate">{f.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeFile(i)}
+                        className="text-muted-foreground hover:text-foreground"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="mt-6">
+              <button
+                type="button"
+                onClick={() => setStep("step4")}
+                className={primaryBtn}
+              >
+                Continue
+              </button>
             </div>
           </div>
         )}
 
-        {/* ── Step: Contact info ── */}
-        {logicalStep === "contact" && (
+        {/* ── step4: Contact info ──────────────────────────────────────────── */}
+        {step === "step4" && (
           <div>
+            <button type="button" onClick={() => setStep("step3")} className={`${backBtn} mb-5`}>
+              <ChevronLeft className="h-4 w-4" /> Back
+            </button>
             <h2 className="text-lg font-semibold mb-1">Your contact info</h2>
-            <p className="text-sm text-muted-foreground mb-5">We&apos;ll use this to follow up with you directly.</p>
-
-            {/* Summary card */}
-            <div className="mb-6 rounded-xl border border-border bg-card/20 p-4">
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Ticket Summary</h3>
-              <div className="space-y-1 text-sm">
-                <div className="flex gap-2">
-                  <span className="text-muted-foreground w-20 shrink-0">Category:</span>
-                  <span className="font-medium">{category}</span>
-                </div>
-                {device && (
-                  <div className="flex gap-2">
-                    <span className="text-muted-foreground w-20 shrink-0">Device:</span>
-                    <span className="font-medium">{device}</span>
-                  </div>
-                )}
-                {issueTypes.length > 0 && (
-                  <div className="flex gap-2">
-                    <span className="text-muted-foreground w-20 shrink-0">Issues:</span>
-                    <span className="font-medium">{issueTypes.join(", ")}</span>
-                  </div>
-                )}
-                {message && (
-                  <div className="flex gap-2">
-                    <span className="text-muted-foreground w-20 shrink-0">Message:</span>
-                    <span className="line-clamp-2 text-muted-foreground">{message}</span>
-                  </div>
-                )}
-              </div>
-            </div>
+            <p className="text-sm text-muted-foreground mb-5">
+              We&apos;ll use this to follow up with you directly.
+            </p>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="mb-1.5 block text-sm font-medium">
-                  First Name <span className="text-red-500">*</span>
+                  First Name <span className="text-destructive">*</span>
                 </label>
                 <input
                   type="text"
-                  value={firstName}
-                  onChange={(e) => { setFirstName(e.target.value); setErrors((prev) => ({ ...prev, firstName: "" })); }}
+                  value={state.firstName}
+                  onChange={(e) => set("firstName", e.target.value)}
                   placeholder="Jane"
-                  className={`w-full rounded-xl border bg-card/20 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent transition-colors ${errors.firstName ? "border-red-500" : "border-border"}`}
+                  className={inputCls}
                 />
-                {errors.firstName && <p className="mt-1 text-xs text-red-500">{errors.firstName}</p>}
               </div>
               <div>
                 <label className="mb-1.5 block text-sm font-medium">
-                  Last Name <span className="text-red-500">*</span>
+                  Last Name <span className="text-destructive">*</span>
                 </label>
                 <input
                   type="text"
-                  value={lastName}
-                  onChange={(e) => { setLastName(e.target.value); setErrors((prev) => ({ ...prev, lastName: "" })); }}
+                  value={state.lastName}
+                  onChange={(e) => set("lastName", e.target.value)}
                   placeholder="Smith"
-                  className={`w-full rounded-xl border bg-card/20 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent transition-colors ${errors.lastName ? "border-red-500" : "border-border"}`}
+                  className={inputCls}
                 />
-                {errors.lastName && <p className="mt-1 text-xs text-red-500">{errors.lastName}</p>}
               </div>
               <div className="sm:col-span-2">
                 <label className="mb-1.5 block text-sm font-medium">
-                  Email Address <span className="text-red-500">*</span>
+                  Email Address <span className="text-destructive">*</span>
                 </label>
                 <input
                   type="email"
-                  value={email}
-                  onChange={(e) => { setEmail(e.target.value); setErrors((prev) => ({ ...prev, email: "" })); }}
+                  value={state.email}
+                  onChange={(e) => set("email", e.target.value)}
                   placeholder="jane@example.com"
-                  className={`w-full rounded-xl border bg-card/20 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent transition-colors ${errors.email ? "border-red-500" : "border-border"}`}
+                  className={inputCls}
                 />
-                {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
               </div>
               <div>
                 <label className="mb-1.5 block text-sm font-medium">
-                  Phone Number <span className="text-red-500">*</span>
+                  Phone{" "}
+                  <span className="text-muted-foreground text-xs">(optional)</span>
                 </label>
                 <input
                   type="tel"
-                  value={phone}
-                  onChange={(e) => { setPhone(e.target.value); setErrors((prev) => ({ ...prev, phone: "" })); }}
+                  value={state.phone}
+                  onChange={(e) => set("phone", e.target.value)}
                   placeholder="+1 (555) 000-0000"
-                  className={`w-full rounded-xl border bg-card/20 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent transition-colors ${errors.phone ? "border-red-500" : "border-border"}`}
+                  className={inputCls}
                 />
-                {errors.phone && <p className="mt-1 text-xs text-red-500">{errors.phone}</p>}
               </div>
               <div>
                 <label className="mb-1.5 block text-sm font-medium">
-                  Order Number <span className="text-muted-foreground text-xs">(optional)</span>
+                  Order Number{" "}
+                  <span className="text-muted-foreground text-xs">(optional)</span>
                 </label>
                 <input
                   type="text"
-                  value={orderNumber}
-                  onChange={(e) => setOrderNumber(e.target.value)}
+                  value={state.orderNumber}
+                  onChange={(e) => set("orderNumber", e.target.value)}
                   placeholder="FV-12345"
-                  className="w-full rounded-xl border border-border bg-card/20 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent transition-colors"
+                  className={inputCls}
                 />
               </div>
             </div>
 
-            {errors.submit && (
-              <p className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-500">
-                {errors.submit}
-              </p>
-            )}
+            <div className="mt-6">
+              <button
+                type="button"
+                onClick={() => setStep("step5")}
+                disabled={!state.firstName || !state.lastName || !state.email}
+                className={primaryBtn}
+              >
+                Review &amp; Submit
+              </button>
+            </div>
           </div>
         )}
 
-        {/* ── Navigation buttons ── */}
-        <div className={`mt-8 flex items-center ${step > 1 ? "justify-between" : "justify-end"}`}>
-          {step > 1 && (
-            <button
-              type="button"
-              onClick={back}
-              disabled={submitting}
-              className="inline-flex items-center gap-2 rounded-xl border border-border px-4 py-2.5 text-sm font-medium hover:border-accent/40 transition-colors disabled:opacity-50"
-            >
-              <ChevronLeft className="h-4 w-4" />
-              Back
+        {/* ── step5: Summary + submit ──────────────────────────────────────── */}
+        {step === "step5" && (
+          <div>
+            <button type="button" onClick={() => setStep("step4")} className={`${backBtn} mb-5`}>
+              <ChevronLeft className="h-4 w-4" /> Back
             </button>
-          )}
+            <h2 className="text-lg font-semibold mb-1">Review your request</h2>
+            <p className="text-sm text-muted-foreground mb-5">
+              Everything look good? Hit Submit to send your ticket.
+            </p>
 
-          {logicalStep !== "contact" ? (
+            {/* Summary card */}
+            <div className="rounded-xl border border-border bg-card/40 p-5 space-y-2 text-sm mb-6">
+              {[
+                ["Category", CATS_LABEL[state.category] ?? state.category],
+                state.device ? ["Device", state.device] : null,
+                state.issues.length ? ["Issues", state.issues.join(", ")] : null,
+                state.appIssues.length ? ["App Issues", state.appIssues.join(", ")] : null,
+                state.description ? ["Description", state.description] : null,
+                state.colorway ? ["Colorway", state.colorway] : null,
+                state.purchaseDate ? ["Purchase Date", state.purchaseDate] : null,
+                state.purchaseFrom ? ["Purchased From", state.purchaseFrom] : null,
+                state.registered ? ["Registered", state.registered] : null,
+                state.orderNumber ? ["Order #", state.orderNumber] : null,
+                [`${state.firstName} ${state.lastName}`, state.email],
+                state.phone ? ["Phone", state.phone] : null,
+                state.files.length ? ["Attachments", `${state.files.length} file(s)`] : null,
+              ]
+                .filter(Boolean)
+                .map((row, i) => (
+                  <div key={i} className="flex gap-3">
+                    <span className="w-32 shrink-0 text-muted-foreground">{(row as string[])[0]}</span>
+                    <span className="font-medium break-all">{(row as string[])[1]}</span>
+                  </div>
+                ))}
+            </div>
+
+            {submitError && (
+              <p className="mb-4 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                {submitError}
+              </p>
+            )}
+
             <button
               type="button"
-              onClick={next}
-              className="inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground shadow-sm transition-all hover:opacity-90"
-            >
-              Next
-              <ArrowRight className="h-4 w-4" />
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={submit}
+              onClick={fvSubmit}
               disabled={submitting}
-              className="inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground shadow-sm transition-all hover:opacity-90 disabled:opacity-60"
+              className={primaryBtn}
             >
               {submitting ? (
-                <>
+                <span className="flex items-center justify-center gap-2">
                   <Loader2 className="h-4 w-4 animate-spin" />
                   Submitting…
-                </>
+                </span>
               ) : (
-                <>
-                  Submit ticket
-                  <ArrowRight className="h-4 w-4" />
-                </>
+                "Submit Request"
               )}
             </button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
