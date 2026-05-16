@@ -43,12 +43,16 @@ export const articlesInCategory = (slug: string) => publishedArticles.filter((a)
 
 // Popular articles — curated to span multiple products for homepage diversity
 const POPULAR_SLUGS = [
-  'how-to-clean-your-aeris',                              // Aeris: cleaning
-  'carta-2-504-505-errors-connectivity-issues-troubleshooting', // Carta 2: most common troubleshooting
-  'how-to-use-your-carta-classic',                        // Carta Classic: how to use
-  'saber-troubleshooting-understanding-error-codes',      // Saber: error codes
-  'bluetooth-connection-to-the-v-browser-troubleshooting', // App/pairing
-  'limited-warranty',                                     // Policy: warranty
+  'aeris-how-to-use',                    // Aeris: how to use
+  'aeris-how-to-clean',                  // Aeris: cleaning
+  'aeris-error-codes',                   // Aeris: error codes
+  'carta-sport-how-to-use',             // Carta Sport: how to use
+  'carta-sport-how-to-clean',           // Carta Sport: cleaning
+  'carta-sport-error-codes',            // Carta Sport: error codes
+  'v-browser-setup-iphone',             // App: iPhone setup
+  'v-browser-bluetooth-troubleshooting', // App: Bluetooth troubleshooting
+  'saber-how-to-use',                   // Saber: how to use
+  'saber-error-codes',                  // Saber: error codes
 ];
 export const popularArticles = () =>
   POPULAR_SLUGS.map(slug => publishedArticles.find(a => a.slug === slug)).filter(Boolean) as Article[];
